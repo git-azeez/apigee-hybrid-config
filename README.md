@@ -309,3 +309,7 @@ Apigee Hybrid (Google Cloud) has stricter JSON schemas than legacy Apigee Edge.
 ```
 
 ```
+---
+
+Reference : https://github.com/apigee/apigee-config-maven-plugin
+Reference : https://github.com/argoproj/argo-workflows
