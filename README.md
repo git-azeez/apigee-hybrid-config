@@ -182,6 +182,7 @@ kubectl apply -f apigee-config-deployer-template.yaml
 ```bash
 argo submit --from wftmpl/apigee-config-deployer   -p repo_url="https://github.com/git-azeez/apigee-hybrid-config.git"   -p apigee_env="walmart"   -p apigee_org="apigee-hybrid-eval-1-477813"   -p config_path="."   -p action="update"   --watch
 
+---
 
 ### 2. Trigger a Deployment (Declarative)
 
