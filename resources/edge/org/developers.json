@@ -4,5 +4,17 @@
     "userName": "jane",
     "firstName": "jane",
     "lastName": "doe"
+  },
+  {
+    "email": "jack.wesp@walmart.com",
+    "userName": "jack",
+    "firstName": "jack",
+    "lastName": "wesp"
+  },
+  {
+    "email": "Azeez.Sayyad@walmart.com",
+    "userName": "Azeez",
+    "firstName": "Azeez",
+    "lastName": "Sayyad"
   }
 ]
