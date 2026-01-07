@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.gitazeez.apigee</groupId>
+  <artifactId>shared-pom</artifactId>
+  <version>1.0.0</version>
+  <packaging>pom</packaging>
+
+  <properties>
+    <apigee.hosturl>https://apigee.googleapis.com</apigee.hosturl>
+    <apigee.org>your-org</apigee.org>
+  </properties>
+
+  <profiles>
+    <profile>
+      <id>walmart</id>
+      <properties>
+        <apigee.profile>walmart</apigee.profile>
+        <apigee.env>walmart</apigee.env>
+      </properties>
+    </profile>
+  </profiles>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>com.apigee.edge.config</groupId>
+        <artifactId>apigee-config-maven-plugin</artifactId>
+        <version>2.9.3</version>
+      </plugin>
+    </plugins>
+  </build>
+</project>

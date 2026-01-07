@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: apigee-config-update-
+  namespace: argo
+spec:
+  workflowTemplateRef:
+    name: apigee-config-deployer
+  arguments:
+    parameters:
+    - name: repo_url
+      value: "https://github.com/gitazeez/apigee-hybrid-config.git"
+    - name: apigee_env
+      value: "walmart"
+    - name: apigee_org
+      value: "apigee-hybrid-eval-1-477813"
+    - name: config_path
+      value: "." # Root of the repo
+    - name: action
+      value: "update"
+
+      

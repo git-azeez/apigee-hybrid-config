@@ -1,0 +1,16 @@
+[
+  {
+    "name": "hello-world-product",
+    "displayName": "Hello World Product",
+    "description": "Product for hello-world-mock proxy",
+    "approvalType": "auto",
+    "attributes": [],
+    "proxies": [
+      "hello-world-mock"
+    ],
+    "quota": "10000",
+    "quotaInterval": "1",
+    "quotaTimeUnit": "month",
+    "scopes": []
+  }
+]

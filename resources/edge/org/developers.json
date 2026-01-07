@@ -1,0 +1,14 @@
+[
+  {
+    "email": "jane.doe@walmart.com",
+    "userName": "jane",
+    "firstName": "jane",
+    "lastName": "doe"
+  },
+  {
+    "email": "john.wesp@walmart.com",
+    "userName": "john",
+    "firstName": "john",
+    "lastName": "wesp"
+  }
+]

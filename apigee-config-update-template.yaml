@@ -1,0 +1,119 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: apigee-config-deployer
+  namespace: argo
+spec:
+  serviceAccountName: argo-workflow 
+  entrypoint: main
+  
+  volumeClaimTemplates:
+    - metadata:
+        name: workdir
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi
+
+  templates:
+    - name: main
+      inputs:
+        parameters:
+          - name: repo_url
+          - name: config_path      # Path to the folder containing pom.xml
+            value: "."             # Default to root
+          - name: apigee_env
+          - name: apigee_org       # Added: Required for config plugin
+          - name: action           # Added: 'update' or 'delete'
+            value: "update"
+      dag:
+        tasks:
+          - name: clone-code
+            template: git-clone
+            arguments:
+              parameters:
+                - name: url
+                  value: "{{inputs.parameters.repo_url}}"
+
+          - name: maven-config-deploy
+            dependencies: [clone-code]
+            template: apigee-config
+            arguments:
+              parameters:
+                - name: apigee_env
+                  value: "{{inputs.parameters.apigee_env}}"
+                - name: apigee_org
+                  value: "{{inputs.parameters.apigee_org}}"
+                - name: path
+                  value: "{{inputs.parameters.config_path}}"
+                - name: action
+                  value: "{{inputs.parameters.action}}"
+
+    # STEP 1: GIT CLONE 
+    - name: git-clone
+      inputs:
+        parameters:
+          - name: url
+      container:
+        image: alpine/git:latest
+        workingDir: /src
+        env:
+          - name: GITHUB_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: github-creds
+                key: token
+          - name: GITHUB_USER
+            valueFrom:
+              secretKeyRef:
+                name: github-creds
+                key: username
+        command: [sh, -c]
+        args: 
+          - |
+            set -e
+            echo "--- Cleaning workspace ---"
+            rm -rf ./* .[a-zA-Z]* || true
+            
+            echo "--- Cloning repository ---"
+            REPO_PATH=$(echo "{{inputs.parameters.url}}" | sed 's~https://~~')
+            git clone "https://${GITHUB_USER}:${GITHUB_TOKEN}@${REPO_PATH}" .
+        volumeMounts:
+          - name: workdir
+            mountPath: /src
+
+    # STEP 2: APIGEE CONFIG DEPLOYMENT
+    - name: apigee-config
+      inputs:
+        parameters:
+          - name: apigee_env
+          - name: apigee_org
+          - name: path
+          - name: action
+      container:
+        image: maven:3.8.5-openjdk-11
+        workingDir: /src/{{inputs.parameters.path}}
+        command: [sh, -c]
+        args:
+          - |
+            set -e
+            echo "--- 1. Fetching Token (Metadata Server) ---"
+            TOKEN=$(curl -s -H "Metadata-Flavor: Google" \
+              "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token" \
+              | grep -o '"access_token":"[^"]*"' | cut -d'"' -f4)
+
+            if [ -z "$TOKEN" ]; then echo "Token failed"; exit 1; fi
+
+            echo "--- 2. Applying Config (Action: {{inputs.parameters.action}}) ---"
+            
+            # NOTE: apigee-config-maven-plugin requires -Dapigee.bearer (not just -Dbearer)
+            mvn clean install -P{{inputs.parameters.apigee_env}} \
+              -Dapigee.bearer="$TOKEN" \
+              -Dapigee.org="{{inputs.parameters.apigee_org}}" \
+              -Dapigee.apiversion=v1 \
+              -Dapigee.config.dir=resources/edge \
+              -Dapigee.config.options={{inputs.parameters.action}}
+        volumeMounts:
+          - name: workdir
+            mountPath: /src
