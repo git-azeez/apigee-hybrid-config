@@ -1,5 +1,3 @@
-Here is the updated `README.md`. I have restructured it to position **Argo Workflows** as the primary deployment method, while keeping the local CLI commands available for testing and development purposes.
-
 ```markdown
 # Apigee Hybrid Configuration Manager
 
